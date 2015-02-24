@@ -32,24 +32,73 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-<h3>>Welcome to GitHub Pages.</h3>
+<h3>Earthquakes in Oklahoma</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<p>Did you know there were more earthquakes in Oklahoma than in California in 2014? That's pretty scary. But the quakes were concentrated in a few key areas. We want to make a map to show who is experiencing the most earthquakes, and will use data joins, reprojection and hex binning to make it happen. Finally, we'll simplify some of our spatial data so it's more ready to use on the big, bad Internet.</p>
 
 <h3>Open earthquakes shapefile</h3>
 
+<p>Click the <img class="button-image" src="images/addvectorbutton.jpg"/> button to add a new vector layer.</p>
+
+<p>Click "browse" to choose a shapefile.</p>
+
+<img class="viz-aid" src="images/addvector2.jpg"/>
+
+<p>Our first dataset is a shapefile of earthquake epicenters from the ANSS catalog. You can find the zipped shapefile in the "data" folder of the project. A shapefile is actually several files with the same name and different extensions. Choose <code>ANSS_2014_US_minimal.shp</code>:</p>
+
+<img class="viz-aid" src="images/addvector3.jpg"/>
+
+<p>Then click "Open." By default you'll see the full extent of the layer, which may look a bit confusing because the Aleutian Islands cross the International Dateline. So use the <img src="images/zoombutton.jpg"/> zoom button to zoom into the contintental United States (the biggest blob).</p>
+
+<img class="viz-aid" src="images/quakesadded.jpg"/>
+
+<p>We can see what other columns besides the epicenter we have by showing the attribute table. RIght-click on the layer in the Layers panel to select "Open attribute table."</p>
+
+<img class="viz-aid" src="images/showattributetable1.jpg"/>
+
+<p>When we open the attribute table, there's not much there beyond the spatial information, just a primary key field and an <code>event_id</code> field.</p>
+
+<img class="viz-aid" src="images/showattributetable2.jpg"/>
+
+<p>This is an extreme example (which is entirely contrived on my part) of a common problem: you have spatial data in one table or shapefile, and another attribute you want to visualize spatially in a different file.
+
 <h3>Open CSV with more data</h3>
+
+<p>In this case, we have data about when the earthquake occurred, magnitude and depth in another CSV. We can join the two datasets because both datasets have a column we can join on: <code>event_id</code> in our shapefile, and <code>catalog_event_id</code> in our CSV file, called <code>ANSS_quake_stats.csv</code>.
+
+<p>Use the <img src="images/addcsv1.jpg"/> button in the left rail of QGIS to add a delimited text layer.</p>
+
+<img class="viz-aid" src="images/addcsv2.jpg"/>
+
+<p>Choose the csv file and click "Open" to bring up a screen with more import options:</p>
+
+<img class="viz-aid" src="images/addcsv3.jpg"/>
+
+<p>The only option to change in this case is to select "No geometry (attribute only table)," since there is no spatial information in this csv. Then click OK. Nothing on the map will change, but there will be a new layer in the Layers panel, <code>ANSS_quake_stats</code>.<p>
+
+<img class="viz-aid" src="images/addcsv4.jpg"/>
 
 <h3>Join shapefile and CSV</h3>
 
+<p>Now we'll create a join. To start, right-click on the shapefile layer (<code>ANSS_2014_US_minimal</code>) --- <strong>NOT the CSV layer</strong> -- and choose "Properties."</p>
+
+<img class="viz-aid" src="images/layer_properties.jpg"/>
+
+<p>Now click the <img src="images/joinbutton.jpg"/> join button in the left menu of the popup, then click the <img src="images/addjoinlayer.jpg"/> button to create a new join.</p>
+
+<p>Now we'll tell QGIS what we want to join and how. For "Join layer," choose our CSV file. And then tell QGIS which two fields are the same in the tables: <code>catalog_event_id</code> in the csv, and <code>event_id</code> in the original shapefile.</p>
+
+<img class="viz-aid" src="images/joindetails.jpg"/>
+
+<p>Click "OK" in the popup, then click "OK" again to close the layer properties.</p>
+
+<p>Let's check our work by opening up the attribute table again. If we did the join correctly, you should see data in the newly joined columns, like so:</p>
+
+<img class="viz-aid" src="images/joined_attributes.jpg"/>
+
 <h3>Save joined data as new shapefile</h3>
 
-<h3>Zounds! Column shenanigants!</h3>
+<h3>Zounds! Column shenanigans!</h3>
 
 <h3>Installing the Table Manager plugin</h3>
 
@@ -64,6 +113,8 @@ $ git checkout gh-pages
 <h3>Create hexagonal bins</h3>
 
 <h3>How big do you want your bins?</h3>
+
+<h3>Filter out bins with no quakes</h3>
 
 <h3>Color bins by count</h3>
 
