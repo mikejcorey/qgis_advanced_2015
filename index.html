@@ -96,15 +96,63 @@
 
 <img class="viz-aid" src="images/joined_attributes.jpg"/>
 
+<p>If you see a bunch of NULL values in the joined columns, it likely means you joined on the wrong fields.</p>
+
 <h3>Save joined data as new shapefile</h3>
+
+<p>Even though our shapefile and CSV are now joined, we can't do fun stuff like filter by attributes in the joined CSV, like magnitude or date. So we'll save a new copy of the shapefile with the joined attributes. Right-click on the shapefile layer and click "Save as."</p>
+
+<img class="viz-aid" src="images/save_as_joined_pre.jpg"/>
+
+<p>There's a few things to make sure we're doing right here. First, click "Browse" to tell QGIS where to save the new file, which you should call <code>ANSS_2014_US_joined.shp</code> so we're all on the same page. For "Format" we want <code>ESRI Shapefile</code>. For CRS (coordinate reference system), we want <code>Layer CRS</code>, and in the box below it should say <code>WGS 84</code>. WGS 84 means that our coordinates are in straight latitude/longitude pairs and are not <a href="https://source.opennews.org/en-US/learning/choosing-right-map-projection/" target="_blank">projected</a>. We'll mess with this more in a minute, but as long as your popup matches this click "OK."</p>
+
+<img class="viz-aid" src="images/save_as_joined.jpg"/>
+
+<p>Great! Now we have a single shapefile with all of our earthquake data. Let's filter! Right-click on the <code>ANSS_2014_joined</code> layer and click <code>Filter</code>:</p>
+
+<img class="viz-aid" src="images/joinedfilterohnobad.jpg"/>
+
+<p>Hey! Where are my hard-won event_date, magnitude and depth columns?!</p>
 
 <h3>Zounds! Column shenanigans!</h3>
 
+<p>What happened here? If you recall, when we did our data join, the new columns had the csv layer name pre-pended to them. When we saved the joined file as a new shapefile, the column headers got truncated to the first few characters, which are clearly unhelpful.</p>
+
+<p>This isn't really QGIS's fault, but has more to do with the nature of shapefiles. The data component of a shapefile is stored as a DBF file, and DBF column headers can be a maximum of 10 characters long. This made sense long ago when memory was more precious, but it's stupid nowadays. Still, it is reality and we shall endeavor to practice professionalism and forbearance.</p>
+
+<p>Can we fix it? Yes we can!</p>
+
 <h3>Installing the Table Manager plugin</h3>
+
+<p>It's a little silly that we have to install a plugin to change column names, but we are endeavoring to practice professionalism and forbearance, and installing plugins is easy:</p>
+
+<p>Click <code>Plugins > Manage and Install Plugins</code>.</p>
+
+<img class="viz-aid" src="images/manageplugins1.jpg"/>
+
+<p> Search for "table" in the search box, and choose the <code>Table Manager</code> plugin:</p>
+
+<img class="viz-aid" src="images/manageplugins2.jpg"/>
+
+<p>Now click "Install plugin."</p>
 
 <h3>Fix column names</h3>
 
+<p>With the plugin installed, you should see a <img src="images/tablemanagerbutton.jpg"/> button in your left rail. Select the joined-and-saved layer (<code>ANSS_2014_US_joined</code>), and click the <img src="images/tablemanagerbutton.jpg"/>button.</p>
+
+<p>We are presented with a list of columns in our layer. Luckily for our sanity, QGIS does preserve the column order from the original join, so you can use the order to extrapolate which column is which. (That said, you should always verify the results if you're using this data in battle.)</p>
+
+<img class="viz-aid" src="images/rename_columns1.jpg"/>
+
+<p>Click "Rename" to change each column name, like so:</p>
+
+<img class="viz-aid" src="images/rename_columns2.jpg"/>
+
+<p>Click "Save" to confirm the new column headers and re-save the shapefile.</p>
+
 <h3>Open Oklahoma counties</h3>
+
+<p>Now we turn to extracting only the earthquakes that occured in Oklahoma from our larger, national dataset. We'll use a shapefile of Oklahoma counties from the Census Bureau to spatially filter our earthquake data.</p>
 
 <h3>Project shapefiles into UTM zone 14N</h3>
 
