@@ -150,11 +150,35 @@
 
 <p>Click "Save" to confirm the new column headers and re-save the shapefile.</p>
 
+<p>Oh, and just say no to this:</p>
+
+<img class="viz-aid" src="images/rename_columns3.jpg"/>
+
 <h3>Open Oklahoma counties</h3>
 
 <p>Now we turn to extracting only the earthquakes that occured in Oklahoma from our larger, national dataset. We'll use a shapefile of Oklahoma counties from the Census Bureau to spatially filter our earthquake data.</p>
 
+<p>Add a new vector layer and select the <code>tl_2014_40_county.shp</code> file.</p>
+
+<img class="viz-aid" src="images/opencountylayer.jpg"/>
+
+<p>Hey, where's Oklahoma? Right-click on the county layer, and select "Zoom to Layer."</p>
+
+<img class="viz-aid" src="images/zoomtolayer.jpg"/>
+
+<p>Much better:</p>
+
+<img class="viz-aid" src="images/counties_and_quakes.jpg"/>
+
 <h3>Project shapefiles into UTM zone 14N</h3>
+
+<p>Even though the earthquakes and counties look like they're overlaying each other properly, the two layers are actually in different spatial reference systems. The earthquakes layer is in WGS 84 (SRID 4326) and the county layer is in NAD 83 (SRID 4269). QGIS (often over-aggressively) is transforming each layer on the fly to show everything together visually, but to actually do spatial operations between the two layers, they must be in the same projection.</p>
+
+<p>So which projection should we choose? That's a whole 'nother class, but short version: We'll use UTM Zone 14N.</p>
+
+<p>Why? First, because both of the source coordinate systems (WGS 84 and NAD 83) are unprojected geographic coordinates. This makes measuring distances and making equilateral shapes (like hex bins) difficult, because the size of a degree of longitude varies depending on the latitude. So we need a coordinate system that uses nice, easy-to-work-with units. Like meters -- everyone loves meters, right? Luckily, we're working with a relatively small area -- one state -- so UTM is a good choice. Within UTM, Zone 14N is the appropriate zone for Oklahoma.</p>
+
+<p>So, now let's create new versions of both layers in UTM Zone 14N. 
 
 <h3>Extract Oklahoma earthquakes</h3>
 
