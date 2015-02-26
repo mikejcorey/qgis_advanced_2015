@@ -36,6 +36,8 @@
 
 <p>Did you know there were more earthquakes in Oklahoma than in California in 2014? That's pretty scary. But the quakes were concentrated in a few key areas. We want to make a map to show who is experiencing the most earthquakes, and will use data joins, reprojection and hex binning to make it happen. Finally, we'll simplify some of our spatial data so it's more ready to use on the big, bad Internet.</p>
 
+<p><strong>The examples shown here are from QGIS 2.6.1 on Ubuntu, but should be substantially similar to other operating systems and versions that are close to 2.6.1.</strong></p>
+
 <h3>Open earthquakes shapefile</h3>
 
 <p>Click the <img class="button-image" src="images/addvectorbutton.jpg"/> button to add a new vector layer.</p>
@@ -178,19 +180,129 @@
 
 <p>Why? First, because both of the source coordinate systems (WGS 84 and NAD 83) are unprojected geographic coordinates. This makes measuring distances and making equilateral shapes (like hex bins) difficult, because the size of a degree of longitude varies depending on the latitude. So we need a coordinate system that uses nice, easy-to-work-with units. Like meters -- everyone loves meters, right? Luckily, we're working with a relatively small area -- one state -- so UTM is a good choice. Within UTM, Zone 14N is the appropriate zone for Oklahoma.</p>
 
-<p>So, now let's create new versions of both layers in UTM Zone 14N. 
+<p>So, now let's create new versions of both layers in UTM Zone 14N. Let's do counties first. Just right-click on the county layer, and click "Save As..."</p>
+
+<img class="viz-aid" src="images/reproject_county_1.jpg"/>
+
+<p>Like before, click "Browse" to change the file name, this time to <code>tl_2014_40_county_utm14.shp</code>. Now we'll specify a new projection. If it's not already set that way, change CRS to "Layer CRS" and click "Change" to specify a projection.</p>
+
+<img class="viz-aid" src="images/reproject_county_2.jpg"/>
+
+<p>QGIS knows hundreds of different projections, so type "utm zone 14" into the Filter window at the top to get matches. You'll see there are several results. We'll choose <code>WGS 84 / UTM zone 14N (EPSG:32614)</code>. Then click "OK."</p>
+
+<img class="viz-aid" src="images/reproject_county_3.jpg"/>
+
+<p>Now you're back on the "Save as ..." popup. Click "OK" to save the projected shapefile.</p>
+
+<p>Repeat this same process for the earthquakes shapefile. Remember, it's important that both new shapefiles are saved in <code>WGS 84 / UTM zone 14N (EPSG:32614)</code>.
+
+<p>You should now have two new layers in your QGIS viewer: <code>ANSS_2014_US_joined_utm</code> and <code>tl_2014_40_county_utm14</code>.</p>
 
 <h3>Extract Oklahoma earthquakes</h3>
 
+<p>Now we'll use our reprojected county shapefile to extract only the earthquakes that are within the state of Oklahoma. We'll do this by finding the <strong>intersection</strong> between the earthquakes layer and the county layer.</p>
+
+<p>Click "Vector > Geoprocessing tools > Intersect ...":</p>
+
+<img class="viz-aid" src="images/intersect1.jpg"/>
+
+<p>In the popup, set the "Input vector layer" to the earthquakes layer, and set the counties layer as the "Intersect layer". We do it this way as opposed to the other way around because we want to end up with the earthquakes that are within the counties, not the counties that touch earthquakes.</p>
+
+<p>Make sure you're using the UTM 14 layers, because the intersection will not work if the two layers are in different projections.</p>
+
+<p>Click "Browse" to choose a file path, and call the new layer <code>ok_quakes_only.shp</code></p>
+
+<img class="viz-aid" src="images/intersect2.jpg"/>
+
+<p>Click "OK," then "Close" once the progress bar finishes, and boom! Oklahoma quakes only!</p>
+
+<img class="viz-aid" src="images/intersect3.jpg"/>
+
 <h3>Create hexagonal bins</h3>
+
+<p>Now we'll create hexagonal bins to show more clearly which areas have the most earthquakes, which is somewhat difficult to tell with only the point data.</p>
+
+<p>Why not just count by county?</p>
+
+<p>We certainly could. In Oklahoma, the counties are relatively similary sized, so this wouldn't be particularly unfair. But some of the counties have an irregular shape, and what if we want to show more detail within a county, or some arbitrary place that doesn't have prexisting geographic boundaries that make sense?</p>
+
+<p>Solution: hex bins. First, we have to create the bins.</p>
+
+<p>We'll use a plugin called MMQGIS to create the bins. In this class, the plugins are already installed on the lab machines, but if you don't already have MMQGIS, follow the directions from above for installing the Table Manager plugin, but search for MMQGIS instead.</p>
+
+<p>While you can manually change it, by default MMQGIS will draw grids based on your current view. So zoom out to where you can see all of Oklahoma, plus a bit more (or a lot more, but it will take a bit longer to make the grids).</p>
+
+<p>Then, click "MMQGIS > Create > Create Grid Lines Layer":</p>
+
+<img class="viz-aid" src="images/hex_bins_1.jpg"/>
+
+<p>Select an output file for your bins, and call it <code>ok_hex_grid.shp</code>. Change the pulldown menu at the bottom of the popup to "hexagon (polygon)":</p>
+
+<img class="viz-aid" src="images/hex_bins_2.jpg"/>
 
 <h3>How big do you want your bins?</h3>
 
+<p>Now it gets a little weird. Since the hexagons aren't squares, it's not super-simple to figure out how big to make them based on area or dimensions. The options you can set are "H spacing" and "V spacing." For hexagons, we'll only mess with "V spacing," which is equivalent to the <a href="http://geometryatlas.com/entries/188" target="_blank">short diagonals</a> of the hexagons.<p>
+
+<p>For the purposes of this exercise, let's say that we want hexagonal grids with an area of 10 square miles. Remember, the unit of our projection is meters, so we'll convert everything to meters. Ten square miles is 51,799,800 square meters. We can use <a href="http://rechneronline.de/pi/hexagon.php" target="blank">this calculator</a> to figure out what short diagonal length will yield a hexagon with an area of 51,799,800 square meters. Spoiler alert: it's ~7,734 meters.</p>
+
+<p>So set the "V spacing" to 7734, and click "OK".</p>
+
+<img class="viz-aid" src="images/hex_bins_3.jpg"/>
+
+<p>Well, that's pretty odd. Drag the grid layer below your others to see the rest of the data.</p>
+
+<img class="viz-aid" src="images/hex_bins_4.jpg"/>
+
+<p>That's better.</p>
+
+<h3>Count the earthquakes in each bin</h3>
+
+<p>Now we'll do a point-in-polygon analysis to count how many quakes are in each of the grids we created. Click "Vector > Analysis > Points in polygon...":</p>
+
+<img class="viz-aid" src="images/hex_bins_5.jpg"/>
+
+<p>Select <code>ok_hex_grid</code> as the input polygon vector layer, and <code>ok_quakes_only</code> for input vector point layer. Then choose a file name for the layer that will be created, <code>ok_quakes_hex_count.shp</code>.</p>
+
+<img class="viz-aid" src="images/hex_bins_6.jpg"/>
+
+<p>Click "OK", then "Close" when the process is complete. Our new <code>ok_quakes_hex_count</code> layer looks the same as the existing grid layer, but has a new field, PNTCNT, which contains the number of earthquakes in that grid.</p>
+
 <h3>Filter out bins with no quakes</h3>
+
+<p>Still, most of the grids we created don't actually have any earthquakes. So let's filter to focus on the grids that are actually interesting. Right-click on the <code>ok_quakes_hex_count</code> layer and choose "Filter." Then tell QGIS that we only want grids where PNTCNT is greater than 0:</p>
+
+<img class="viz-aid" src="images/hex_bins_7.jpg"/>
+
+<p>Click "OK." Now we're getting somewhere:</p>
+
+<img class="viz-aid" src="images/hex_bins_8.jpg"/>
 
 <h3>Color bins by count</h3>
 
+<p>Now let's color-code the hex bins by how many earthquakes each has. Right-click on the <code>ok_quakes_hex_count</code> layer, choose "Properties," and click on the "Style" tab on the left side:</p>
+
+<img class="viz-aid" src="images/hex_bins_9.jpg"/>
+
+<p>Fill out the fields as shown above, then click "Classify." You'll see that many of the bins only have 1 or 2 quakes, but others have more than 30. Click "OK".</p>
+
+<img class="viz-aid" src="images/hex_bins_10.jpg"/>
+
+<p>Boom. Much more clarity than the bunched-together points we started with.</p>
+
 <h3>Simplify county shapefile</h3>
+
+<p>Now it's time to take this party outside of QGIS to somewhere like TileMill, Leaflet, GeoDjango, D3, whatever. Those are all pretty legit places to party. But if you're heading to a production website, we're carrying a lot of extra weight. The counties shapefile is somewhere around 5 MB -- no one wants to load that much data on a live website.</p>
+
+<p>So before we export, let's simplify the geometry of the counties layer. There is a lot of extra space being taken up by all the twists and turns of the rivers that make up many of the county borders. As much detail as possible is important for analysis, but unless you're going to show a very zoomed-in view, the difference between the original and simplified versions will be impossible to see.</p>
+
+<p>Click "Vector > Geometry Tools > Simplify Geometries ...":</p>
+
+<img class="viz-aid" src="images/simplify_1.jpg"/>
+<img class="viz-aid" src="images/simplify_2.jpg"/>
+<img class="viz-aid" src="images/simplify_3.jpg"/>
+<img class="viz-aid" src="images/simplify_4.jpg"/>
+
 
 <h3>Export GeoJSON</h3>
 
