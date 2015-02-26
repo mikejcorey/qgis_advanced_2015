@@ -299,13 +299,38 @@
 <p>Click "Vector > Geometry Tools > Simplify Geometries ...":</p>
 
 <img class="viz-aid" src="images/simplify_1.jpg"/>
-<img class="viz-aid" src="images/simplify_2.jpg"/>
-<img class="viz-aid" src="images/simplify_3.jpg"/>
-<img class="viz-aid" src="images/simplify_4.jpg"/>
 
+<p>Again, to keep things simple we'll stick with UTM 14N at this stage, so we're still dealing with the <code>tl_2014_40_county_utm14</code> layer. The key value to set here is "Simplify tolerance." The higher you set this number, the less detail will remain after simplification. Tolerance is often a game of guess-and-check, sadly, because it varies with each projection and how complicated the geometries you're dealing with are. In this case, a tolerance of 100 will work well. But for other projections the appropriate value might be 0.0001.</p>
+
+<p>So for now, enter 100 for the tolerance, and specify a file location, with the filename <code>tl_2014_40_county_utm14_simplify_100.shp</code>.</p>
+
+<img class="viz-aid" src="images/simplify_2.jpg"/>
+
+<p>Once we click "OK", you'll get a popup that reports back on the havoc you have wrought. In this case, we reduced the number of vertices by a factor of 30!</p>
+
+<img class="viz-aid" src="images/simplify_3.jpg"/>
+
+<p>But that's fine in this case. You'll have to zoom waaaaay in on the layer to see the difference between the two, and we've reduced our file size to around 100K.</p>
+
+<img class="viz-aid" src="images/simplify_4.jpg"/>
 
 <h3>Export GeoJSON</h3>
 
+<p>Now it's time to export from QGIS. There's many format options, but in this case we'll do GeoJSON because it's so translatable to many other applications.</p>
+
+<p>Right-click on the <code>tl_2014_40_county_utm14_simplify_100</code> layer and click "Save As." First, change the "Format" to GeoJSON (but look at all those other options!) and pick a filename for your geoJSON.</p>
+
+<img class="viz-aid" src="images/geojson1.jpg"/>
+
+<p>Next, we'll export into basic WGS 84 latitude/longitude coordinates, because most external libraries expect that, rather than projected coordinates. Click "Change...", then search for "4326" (the SRID of WGS 84) to find the correct coordinate system. Select "WGS 84" and click "OK."</p>
+
+<img class="viz-aid" src="images/geojson2.jpg"/>
+
+<p>And if your popup looks like this, go ahead and click "OK".
+
+<img class="viz-aid" src="images/geojson3.jpg"/>
+
+<p>We did it!</p>
 
       </section>
     </div>
